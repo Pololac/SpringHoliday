@@ -94,7 +94,6 @@ public class User implements UserDetails {
         return email;
     }
 
-
     @Override
     public boolean isEnabled() {
         //On mettra active false par défaut et on le passe true à la validation de l'email

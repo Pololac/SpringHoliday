@@ -1,6 +1,6 @@
 package com.hb.cda.springholiday.repository;
 
-import com.hb.cda.springholiday.data.DataLoader;
+import com.hb.cda.DataLoader;
 import com.hb.cda.springholiday.entity.Room;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;

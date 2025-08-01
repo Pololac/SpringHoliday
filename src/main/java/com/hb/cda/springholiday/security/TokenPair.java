@@ -1,4 +1,4 @@
-package com.hb.cda.springholiday.service.impl;
+package com.hb.cda.springholiday.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

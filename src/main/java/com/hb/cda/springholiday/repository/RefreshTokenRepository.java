@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, String>{
     @Modifying
-    @Query(value = "delete from RefreshToken rt where rt.expiresAt < current_date")
+    @Query("DELETE FROM RefreshToken r WHERE r.expiresAt < current_date")
     void deleteExpiredToken();
 
     @Modifying
-    @Query(value = "delete from RefreshToken rt where rt.user = :user")
+    @Query("DELETE FROM RefreshToken r WHERE r.user = :user")
     void deleteByUser(User user);
 }

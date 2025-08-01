@@ -6,8 +6,7 @@ import com.hb.cda.springholiday.entity.User;
 import com.hb.cda.springholiday.repository.RefreshTokenRepository;
 import com.hb.cda.springholiday.repository.UserRepository;
 import com.hb.cda.springholiday.security.jwt.JwtUtil;
-import com.hb.cda.springholiday.service.MailService;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.hb.cda.springholiday.messaging.MailService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,26 +32,38 @@ public class AccountBusinessImpl implements AccountBusiness {
     @Override
     public User register(User user) {
         Optional<User> optUser = userRepository.findByEmail(user.getEmail());
+        //On vérifie si le User n'existe pas déjà
         if (optUser.isPresent()) {
             throw new UserAlreadyExistsException();
         }
+        // On hashe le mot de passe
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
+        //On lui assigne un rôle par défaut
         user.setRole("ROLE_USER");
+        //et on met son compte comme non activé
         user.setActive(false);
+        // User persisté en BDD
         userRepository.save(user);
 
+        //On génère un JWT avec notre utilitaire vu précédemment (expiration 7j car validation nécessaire)
         String token = jwtUtil.generateToken(user, Instant.now().plus(7, ChronoUnit.DAYS));
 
-        mailService.sendEmailValidation(user, token); // Envoi un mail avec le token dans le lien
+        //On envoie ce JWT dans un lien cliquable au mail indiqué pour le User qu'on a persisté
+        mailService.sendEmailValidation(user, token);
 
         return user;
     }
 
     @Override
     public void activateUser(String token) {
-        User user = (User)jwtUtil.validateToken(token); // Le token utilisé pour le lien est valable 7 jours
+        //On valide le token envoyé et on en extrait le user
+        // (on le cast car le validateToken renvoie un UserDetails
+        // et dans ce cas là, on a besoin de la classe concrète pour activer)
+        User user = (User)jwtUtil.validateToken(token);
+        //On l'active
         user.setActive(true);
+        //On met à jour dans la base de données
         userRepository.save(user);
     }
 

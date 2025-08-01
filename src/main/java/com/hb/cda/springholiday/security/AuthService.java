@@ -1,11 +1,7 @@
-package com.hb.cda.springholiday.service;
+package com.hb.cda.springholiday.security;
 
 import com.hb.cda.springholiday.controller.dto.LoginCredentialsDTO;
 import com.hb.cda.springholiday.controller.dto.LoginResponseDTO;
-import com.hb.cda.springholiday.entity.User;
-import com.hb.cda.springholiday.service.impl.TokenPair;
-
-import java.util.Map;
 
 public interface AuthService {
     /**

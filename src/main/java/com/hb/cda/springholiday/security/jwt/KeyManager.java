@@ -21,40 +21,42 @@ import jakarta.annotation.PostConstruct;
 public class KeyManager {
 
     private Algorithm algorithm;
-    @Value("${jwt.key.location}") // Indique le dossier où sont stockées les clés (via dossier "env")
+    @Value("${jwt.key.location}") // Variable d'environnement qui indique le dossier où sont stockées les clés (via dossier "env")
     private Path keyLocation;
 
-
+    //Cette annotation fait que l'initialisation des clés se fera à l'instanciation de cette classe
+    // et donc dans ce cas-ci, au lancement de l'application
     @PostConstruct
     private void initialize() throws Exception {
         Path pubFile = keyLocation.resolve("public.key");
         Path privFile = keyLocation.resolve("private.key");
         KeyPair keyPair;
 
+        //Si les fichiers contenant les clés n'existent pas, on génère la paire de clés
         if (Files.notExists(pubFile) || Files.notExists(privFile)) {
-
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
             keyPair = generator.generateKeyPair();
             Files.write(pubFile, keyPair.getPublic().getEncoded());
             Files.write(privFile, keyPair.getPrivate().getEncoded());
 
         } else {
-
+            // Si elles existent déjà
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            //On récupère le contenus des fichiers et on les interprète en instance de clés voulues
             keyPair = new KeyPair(
                     keyFactory.generatePublic( new X509EncodedKeySpec(Files.readAllBytes(pubFile))),
                     keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Files.readAllBytes(privFile)))
             );
-
         }
 
-        // Cet objet sert ensuite à signer (avec la clé privée) et vérifier (avec la clé publique) des JSON Web Tokens.
+        // On utilise les clés en question (existantes ou tout juste générées) pour créer l'algorithme de signature/validation
         algorithm = Algorithm.RSA256(
                 (RSAPublicKey)keyPair.getPublic(),
                 (RSAPrivateKey)keyPair.getPrivate()
         );
     }
 
+    //On rend accessible cet algorithme
     public Algorithm getAlgorithm() {
         return algorithm;
     }

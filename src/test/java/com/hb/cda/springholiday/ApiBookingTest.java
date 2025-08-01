@@ -1,6 +1,6 @@
 package com.hb.cda.springholiday;
 
-import com.hb.cda.springholiday.data.DataLoader;
+import com.hb.cda.DataLoader;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;

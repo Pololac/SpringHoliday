@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
-
     private AuthenticationConfiguration authenticationConfiguration;
     private JwtFilter jwtFilter;
 
@@ -46,4 +45,6 @@ public class SecurityConfig {
     AuthenticationManager getManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+
 }

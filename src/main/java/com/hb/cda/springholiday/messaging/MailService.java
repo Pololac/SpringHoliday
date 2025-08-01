@@ -1,4 +1,4 @@
-package com.hb.cda.springholiday.service;
+package com.hb.cda.springholiday.messaging;
 
 import com.hb.cda.springholiday.entity.User;
 

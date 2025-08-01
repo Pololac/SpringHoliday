@@ -34,7 +34,7 @@ public class AccountController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public String registerUser (@RequestBody @Valid UserRegisterDTO dto) {
-        User user = mapper.convertToUser(dto);
+        User user = mapper.convertToEntity(dto);
         accountBusiness.register(user);
         return "Check your email please";
     }

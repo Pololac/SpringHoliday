@@ -11,6 +11,6 @@ import org.mapstruct.ReportingPolicy;
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
-    User convertToUser(UserRegisterDTO dto);
+    User convertToEntity(UserRegisterDTO dto);
     UserDTO convertToDTO(User user);
 }

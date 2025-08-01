@@ -1,17 +1,17 @@
-package com.hb.cda.springholiday.service.impl;
+package com.hb.cda.springholiday.messaging.impl;
 
 import com.hb.cda.springholiday.entity.User;
-import com.hb.cda.springholiday.service.MailService;
+import com.hb.cda.springholiday.messaging.MailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
-@Service
+@SpringBootApplication(scanBasePackages = {"com.hb.cda.springholiday.entity", "com.hb.cda.springholiday.repository"})
 class MailServiceImpl implements MailService {
     private JavaMailSender mailSender;
 
@@ -23,6 +23,7 @@ class MailServiceImpl implements MailService {
     public void sendEmailValidation(User user, String token) {
         // Pour récupérer dynamiquement l’URL de base de votre application (schéma, hôte, port et context‐path)
         String serverUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);

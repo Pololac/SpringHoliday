@@ -1,4 +1,4 @@
-package com.hb.cda.springholiday.data;
+package com.hb.cda;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-
 
 @SpringBootApplication(scanBasePackages = {"com.hb.cda.springholiday.entity", "com.hb.cda.springholiday.repository"})
 public class DataLoader implements CommandLineRunner {

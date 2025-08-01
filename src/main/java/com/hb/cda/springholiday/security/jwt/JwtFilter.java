@@ -18,37 +18,35 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-@AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter{
     private JwtUtil jwtUtil;
+
+    public JwtFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        //On récupère le contenu du header Authorization où peut se trouver le token
         String authHeader = request.getHeader("Authorization");
-
-        //Si pas de header ou pas de type jwt, on passe, on s'arrête ici
-        if(request.getRequestURI().startsWith("/api/login")
+        // Si on est sur la route login ou refresh, qu'on a pas de header ou pas de type jwt, on passe, on s'arrête ici
+        if (request.getRequestURI().startsWith("/api/login")
                 || request.getRequestURI().startsWith("/api/refresh-token")
                 || authHeader == null
                 || !authHeader.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
             return;
         }
-
         String jwt = authHeader.substring(7);
 
         try {
             UserDetails user = jwtUtil.validateToken(jwt);
             SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
-                );
+                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
             filterChain.doFilter(request, response);
-
         } catch (AuthorizationDeniedException e) {
             response.sendError(HttpStatus.FORBIDDEN.value(), e.getMessage());
         }
-
     }
 }
