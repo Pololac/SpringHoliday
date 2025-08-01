@@ -79,9 +79,11 @@ public class AuthServiceImpl implements AuthService {
         if(refreshToken.isExpired()) {
             throw new RuntimeException("Refresh token expired");
         }
-
+        //Récupération du user lié à ce refresh
         User user = refreshToken.getUser();
+        //Suppression de l'ancien refresh
         refreshTokenRepository.delete(refreshToken);
+        //Génération d'un nouveau refresh et d'un nouveau JWT liés à ce user
         String newToken = generateRefreshToken(user.getId());
         String jwt = jwtUtil.generateToken(user);
 

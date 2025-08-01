@@ -4,10 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,6 +27,7 @@ public class JwtFilter extends OncePerRequestFilter{
             throws ServletException, IOException {
         //On récupère le contenu du header Authorization où peut se trouver le token
         String authHeader = request.getHeader("Authorization");
+
         // Si on est sur la route login ou refresh, qu'on a pas de header ou pas de type jwt, on passe, on s'arrête ici
         if (request.getRequestURI().startsWith("/api/login")
                 || request.getRequestURI().startsWith("/api/refresh-token")
@@ -38,6 +36,8 @@ public class JwtFilter extends OncePerRequestFilter{
             filterChain.doFilter(request, response);
             return;
         }
+
+        // Récupération du JWT si présent dans le header et vérification qu'il est "legit"
         String jwt = authHeader.substring(7);
 
         try {

@@ -25,13 +25,16 @@ public class AuthController {
 
     @PostMapping("api/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginCredentialsDTO credentials){
+        // On authentifie le User et si OK, on lui génère un JWT (mis dans responseDTO)
         LoginResponseDTO responseDto = authService.login(credentials);
+
+        // On lui génère également un refresh token
         String refreshToken = authService.generateRefreshToken(responseDto.getUser().getId());
 
         // On crée un cookie dans lequel on stocke le refresh token (voir méthode ci-dessous)
         ResponseCookie refreshCookie = generateCookie(refreshToken);
 
-        // Dans la réponse à la requete de login, on envoie le refresh ds cookie et le jwt dans le body
+        // Dans la réponse à la requête de login, on envoie le refresh ds cookie et le jwt dans le body
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -41,8 +44,10 @@ public class AuthController {
     @PostMapping("/api/refresh-token")
     public ResponseEntity<String> refreshToken(@CookieValue(name = "refresh-token") String token) {
         try {
+            // Validation du refresh et, si OK, récupération d'un nouveau JWT et d'un nouveau refresh
             TokenPair tokens = authService.validateRefreshToken(token);
             ResponseCookie refreshCookie = generateCookie(tokens.getRefreshToken());
+
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                     .body(tokens.getJwt());

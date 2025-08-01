@@ -51,6 +51,8 @@ public class AccountController {
         return "Check your email please";
     }
 
+    // User forcément connecté pour faire la demande
+    @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/password")
     public String updatePassword(@RequestBody UpdatePasswordDTO dto, @AuthenticationPrincipal User user) {
         accountBusiness.updatePassword(user, dto.getNewPassword());
