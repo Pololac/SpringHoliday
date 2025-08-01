@@ -21,40 +21,34 @@ class MailServiceImpl implements MailService {
 
     @Override
     public void sendEmailValidation(User user, String token) {
-        // Pour récupérer dynamiquement l’URL de base de votre application (schéma, hôte, port et context‐path)
         String serverUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
-
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setTo(user.getEmail());
-            helper.setFrom("springholiday@human-booster.fr");
-            helper.setSubject("SpringHoliday Email Validation");
-
-            helper.setText("""
+        String message = """
                     To validate your account click on <a href="%s">this link</a>
                     """
-                    .formatted(serverUrl+"/api/account/validate/" + token),true); //Url du lien
-            mailSender.send(mimeMessage);
-        } catch (MailException | MessagingException e) {
-            throw new RuntimeException("Unable to send mail", e);
-        }
+                .formatted(serverUrl+"/api/account/validate/"+token);
+        sendMailBase(user.getEmail(), message, "Spring Holiday Email Validation");
     }
 
     @Override
     public void sendResetPassword(User user, String token) {
         String serverUrl = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+        String message = """
+                    To reset your password click on <a href="%s">this link</a>
+                    """
+                .formatted(serverUrl+"/reset-password.html?token="+token);
+        sendMailBase(user.getEmail(), message, "Spring Holiday Reset Password");
+    }
+
+
+    private void sendMailBase(String to, String message, String subject) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setTo(user.getEmail());
+            helper.setTo(to);
             helper.setFrom("springholiday@human-booster.fr");
-            helper.setSubject("SpringHoliday Reset Password");
+            helper.setSubject(subject);
 
-            helper.setText("""
-                    To reset your password, click on <a href="%s">this link</a>
-                    """
-                    .formatted(serverUrl+"/reset-password.html?token=" + token),true); //Url du lien
+            helper.setText(message,true); //Temporaire, email à remplacer par un JWT
             mailSender.send(mimeMessage);
         } catch (MailException | MessagingException e) {
             throw new RuntimeException("Unable to send mail", e);
