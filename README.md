@@ -11,8 +11,8 @@ Starter REST API for leave/holiday management built with **Spring Boot 3**, **Sp
   - [Run](#run)
 - [Authentication](#authentication)
   - [Login](#login)
-  - [Automatic token injection in Postman](#automatic-token-injection-in-postman)
   - [Refresh token](#refresh-token)
+  - [Automatic token injection in Postman](#automatic-token-injection-in-postman)
 - [Domain](#domain)
   - [Booking DTOs](#booking-dtos)
 - [Database](#database)
@@ -42,6 +42,7 @@ Starter REST API for leave/holiday management built with **Spring Boot 3**, **Sp
 - Java 17+
 - Maven 3.6+
 - MySQL (default examples assume `localhost:8889`)
+- (Optional) Mailtrap to test validation emailing
 
 ### Configuration
 
@@ -113,6 +114,23 @@ Content-Type: application/json
 ```
 The **refresh token** is sent as an **HTTP-only cookie** (e.g. `refreshToken`).
 
+### Refresh token
+
+If your refresh endpoint returns the **access token as raw body**, use this **Post-request** script on that request:
+
+```javascript
+const newJwt = pm.response.text().trim();
+if (newJwt) {
+  pm.environment.set("jwt_token", newJwt);
+}
+
+// If a new refresh cookie is sent:
+const refreshedCookie = pm.cookies.get("refreshToken");
+if (refreshedCookie) {
+  pm.environment.set("refresh_token", refreshedCookie);
+}
+```
+
 ### Automatic token injection in Postman
 
 At the **Collection** level, set **Authorization → Bearer Token** and use:
@@ -140,22 +158,6 @@ if (cookie) {
 }
 ```
 
-### Refresh token
-
-If your refresh endpoint returns the **access token as raw body**, use this **Post-request** script on that request:
-
-```javascript
-const newJwt = pm.response.text().trim();
-if (newJwt) {
-  pm.environment.set("jwt_token", newJwt);
-}
-
-// If a new refresh cookie is sent:
-const refreshedCookie = pm.cookies.get("refreshToken");
-if (refreshedCookie) {
-  pm.environment.set("refresh_token", refreshedCookie);
-}
-```
 
 ## Domain
 
@@ -192,13 +194,12 @@ If you use seed data, add SQL files under a `data/` folder or integrate Flyway/L
 > Paths may vary depending on your controllers; adjust here if needed.
 
 - `POST /api/login` — authenticate and receive JWT (+ refresh cookie)  
-- `POST /api/refresh` — get a new JWT using the refresh cookie  
+- `POST /api/refresh-token` — get a new JWT using the refresh cookie  
 - `GET  /api/account` — current user info (requires `Authorization: Bearer {{jwt_token}}`)  
 - `POST /api/bookings` — create a booking (authenticated)  
 
 ## Development
-
-- Java version: 17+  
+- Java version: 17+
 - Build tool: Maven  
 - Primary dependencies: Spring Boot Web, Security, Validation, Data JPA, MySQL driver, MapStruct (for mapping).
 
