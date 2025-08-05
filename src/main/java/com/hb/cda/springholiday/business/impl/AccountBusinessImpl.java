@@ -7,6 +7,8 @@ import com.hb.cda.springholiday.repository.RefreshTokenRepository;
 import com.hb.cda.springholiday.repository.UserRepository;
 import com.hb.cda.springholiday.security.jwt.JwtUtil;
 import com.hb.cda.springholiday.messaging.MailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,8 @@ public class AccountBusinessImpl implements AccountBusiness {
     private UserRepository userRepository;
     private RefreshTokenRepository refreshTokenRepository;
     private JwtUtil jwtUtil;
+
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     public AccountBusinessImpl(MailService mailService, PasswordEncoder passwordEncoder, UserRepository userRepository, JwtUtil jwtUtil) {
         this.mailService = mailService;
@@ -52,6 +56,8 @@ public class AccountBusinessImpl implements AccountBusiness {
         //On envoie ce JWT dans un lien cliquable au mail indiqué pour le User qu'on a persisté
         mailService.sendEmailValidation(user, token);
 
+        logger.info("User registered: {}", user.getEmail());
+
         return user;
     }
 
@@ -73,6 +79,9 @@ public class AccountBusinessImpl implements AccountBusiness {
                 .orElseThrow(() -> new RuntimeException("User not found with email " + email));
         String token = jwtUtil.generateToken(user, Instant.now().plusSeconds(3600));
         mailService.sendResetPassword(user, token);
+
+        logger.info("User requested password: {}", user.getEmail());
+
     }
 
     @Override
