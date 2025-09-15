@@ -1,6 +1,7 @@
 package com.hb.cda.springholiday.controller;
 
 import com.hb.cda.springholiday.business.AccountBusiness;
+import com.hb.cda.springholiday.controller.dto.SimpleMessageDTO;
 import com.hb.cda.springholiday.controller.dto.UpdatePasswordDTO;
 import com.hb.cda.springholiday.controller.dto.UserRegisterDTO;
 import com.hb.cda.springholiday.controller.dto.mapper.UserMapper;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin
 @RestController
 @RequestMapping("api/account")
 public class AccountController {
@@ -33,29 +35,29 @@ public class AccountController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public String registerUser (@RequestBody @Valid UserRegisterDTO dto) {
+    public SimpleMessageDTO registerUser (@RequestBody @Valid UserRegisterDTO dto) {
         User user = mapper.convertToEntity(dto);
         accountBusiness.register(user);
-        return "Check your email please";
+        return new SimpleMessageDTO("Check your email please");
     }
 
     @GetMapping("/validate/{token}")
-    public String activate(@PathVariable String token) {
+    public SimpleMessageDTO activate(@PathVariable String token) {
         accountBusiness.activateUser(token);
-        return "Account activated. Tou can now login";
+        return new SimpleMessageDTO("Account activated. Tou can now login");
     }
 
     @PostMapping("/password/{email}")
-    public String resetPassword(@PathVariable String email) {
+    public SimpleMessageDTO resetPassword(@PathVariable String email) {
         accountBusiness.resetPassword(email);
-        return "Check your email please";
+        return new SimpleMessageDTO("Check your email please");
     }
 
     // User forcément connecté pour faire la demande
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("/password")
-    public String updatePassword(@RequestBody UpdatePasswordDTO dto, @AuthenticationPrincipal User user) {
+    public SimpleMessageDTO updatePassword(@RequestBody UpdatePasswordDTO dto, @AuthenticationPrincipal User user) {
         accountBusiness.updatePassword(user, dto.getNewPassword());
-        return "Password updated";
+        return new SimpleMessageDTO("Password updated");
     }
 }
