@@ -37,6 +37,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        em.createQuery("DELETE FROM RefreshToken").executeUpdate();
         em.createQuery("DELETE FROM Booking").executeUpdate();
         em.createQuery("DELETE FROM Room").executeUpdate();
         em.createQuery("DELETE FROM User").executeUpdate();
