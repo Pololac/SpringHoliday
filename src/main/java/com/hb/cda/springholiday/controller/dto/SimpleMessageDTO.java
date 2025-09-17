@@ -2,19 +2,16 @@ package com.hb.cda.springholiday.controller.dto;
 
 
 public class SimpleMessageDTO {
-    private String Message;
+    private String message;
 
     public SimpleMessageDTO(String message) {
-        Message = message;
+        this.message = message;
     }
 
     public String getMessage() {
-        return Message;
+        return message;
     }
-
     public void setMessage(String message) {
-        Message = message;
+        this.message = message;
     }
-
-
 }
