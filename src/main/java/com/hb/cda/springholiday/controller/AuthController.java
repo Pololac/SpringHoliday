@@ -2,6 +2,7 @@ package com.hb.cda.springholiday.controller;
 
 import com.hb.cda.springholiday.controller.dto.LoginCredentialsDTO;
 import com.hb.cda.springholiday.controller.dto.LoginResponseDTO;
+import com.hb.cda.springholiday.controller.dto.SimpleMessageDTO;
 import com.hb.cda.springholiday.entity.User;
 import com.hb.cda.springholiday.security.AuthService;
 import com.hb.cda.springholiday.security.TokenPair;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+// @CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RestController
 public class AuthController {
     private final AuthService authService;
@@ -25,16 +27,16 @@ public class AuthController {
 
     @PostMapping("api/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginCredentialsDTO credentials){
-        // On authentifie le User et si OK, on lui génère un JWT (mis dans responseDTO)
+        // On authentifie le User et si OK, on lui génère un JWT (mis dans responseDTO).
         LoginResponseDTO responseDto = authService.login(credentials);
 
         // On lui génère également un refresh token
         String refreshToken = authService.generateRefreshToken(responseDto.getUser().getId());
 
-        // On crée un cookie dans lequel on stocke le refresh token (voir méthode ci-dessous)
+        // On crée un cookie dans lequel on stocke le refresh token (voir méthode ci-dessous).
         ResponseCookie refreshCookie = generateCookie(refreshToken);
 
-        // Dans la réponse à la requête de login, on envoie le refresh ds cookie et le jwt dans le body
+        // Dans la réponse à la requête de login, on envoie le refresh-token dans le cookie et le jwt dans le body.
         return ResponseEntity
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -42,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/refresh-token")
-    public ResponseEntity<String> refreshToken(@CookieValue(name = "refresh-token") String token) {
+    public ResponseEntity<SimpleMessageDTO> refreshToken(@CookieValue(name = "refresh-token") String token) {
         try {
             // Validation du refresh et, si OK, récupération d'un nouveau JWT et d'un nouveau refresh
             TokenPair tokens = authService.validateRefreshToken(token);
@@ -50,7 +52,7 @@ public class AuthController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(tokens.getJwt());
+                    .body(new SimpleMessageDTO(tokens.getJwt()));
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid refresh token");
@@ -58,16 +60,16 @@ public class AuthController {
     }
 
     @GetMapping("api/protected")
-    public String protec(@AuthenticationPrincipal User user) {
+    public SimpleMessageDTO protec(@AuthenticationPrincipal User user) {
         System.out.println("hola");
-        return user.getEmail();
+        return new SimpleMessageDTO(user.getEmail());
     }
 
     private ResponseCookie generateCookie(String refreshToken) {
         ResponseCookie refreshCookie = ResponseCookie.from("refresh-token", refreshToken)
                 .httpOnly(true) //HttpOnly permet que le refresh token ne soit pas manipulable par le JS
-                .secure(false)// il faudrait plutôt mettre à true pour qu'il ne soit envoyé qu'en HTTPS, mais le temps du dev on le met à false
-                .sameSite(SameSiteCookies.NONE.toString())
+                .secure(false)// il faudrait plutôt mettre à true pour qu'il ne soit envoyé qu'en HTTPS, mais le temps du dev, on le met à false
+                .sameSite(SameSiteCookies.LAX.toString()) // Cadre d'utilisation :
                 .path("/api/refresh-token") //On indique le chemin sur lequel sera envoyé ce token par le client
                 .build();
 

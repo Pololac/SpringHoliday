@@ -12,7 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
+// @CrossOrigin(allowCredentials = "true", origins = "http://localhost:4200")
 @RestController
 @RequestMapping("api/account")
 public class AccountController {
